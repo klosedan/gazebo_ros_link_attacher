@@ -4,6 +4,7 @@
 #include "gazebo_ros_link_attacher/Attach.h"
 #include "gazebo_ros_link_attacher/AttachRequest.h"
 #include "gazebo_ros_link_attacher/AttachResponse.h"
+#include <gazebo/math/gzmath.hh>
 
 namespace gazebo
 {
@@ -109,12 +110,23 @@ namespace gazebo
     ROS_DEBUG_STREAM("Links are: "  << l1->GetName() << " and " << l2->GetName());
 
     ROS_DEBUG_STREAM("Creating revolute joint on model: '" << model1 << "'");
-    j.joint = this->physics->CreateJoint("ball", m1);
+    j.joint = this->physics->CreateJoint("universal", m1);
     this->joints.push_back(j);
 
     ROS_DEBUG_STREAM("Attach");
     j.joint->Attach(l1, l2);
-    ROS_DEBUG_STREAM("Loading links");
+	ROS_DEBUG_STREAM("Set Axis");
+	math::Vector3 axis=math::Vector3(0,0,1);
+	j.joint->SetAxis(0,axis);
+	axis=math::Vector3(0,1,0);
+	j.joint->SetAxis(1,axis);
+
+
+	axis=j.joint->GetGlobalAxis(0);
+	ROS_DEBUG_STREAM("Axis1: "<<axis.x<<" "<<axis.y<<" "<<axis.z);    
+	axis=j.joint->GetGlobalAxis(1);
+	ROS_DEBUG_STREAM("Axis2: "<<axis.x<<" "<<axis.y<<" "<<axis.z);    
+	ROS_DEBUG_STREAM("Loading links");
     j.joint->Load(l1, l2, math::Pose());
     ROS_DEBUG_STREAM("SetModel");
     j.joint->SetModel(m2);
